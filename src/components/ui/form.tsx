@@ -2,6 +2,7 @@
 
 import * as LabelPrimitive from "@radix-ui/react-label";
 import { Slot } from "@radix-ui/react-slot";
+import { AnimatePresence, motion } from "framer-motion";
 import * as React from "react";
 import {
   Controller,
@@ -90,7 +91,7 @@ const FormLabel = React.forwardRef<
   return (
     <Label
       ref={ref}
-      className={cn(error && "text-destructive", className)}
+      className={cn("transition-all", error && "text-destructive", className)}
       htmlFor={formItemId}
       {...props}
     />
@@ -140,19 +141,27 @@ const FormMessage = React.forwardRef<
   const { error, formMessageId } = useFormField();
   const body = error ? String(error?.message) : children;
 
-  if (!body) {
-    return null;
-  }
-
   return (
-    <p
-      ref={ref}
-      id={formMessageId}
-      className={cn("text-sm font-medium text-destructive", className)}
-      {...props}
-    >
-      {body}
-    </p>
+    <AnimatePresence>
+      {body && (
+        <motion.div
+          ref={ref}
+          initial={{ opacity: 0, y: -10, height: 0 }}
+          animate={{ opacity: 1, y: 0, height: "auto" }}
+          exit={{ opacity: 0, y: -10, height: 0 }}
+          transition={{ duration: 0.2 }}
+        >
+          <p
+            ref={ref}
+            id={formMessageId}
+            className={cn("text-xs font-medium text-destructive", className)}
+            {...props}
+          >
+            {body}
+          </p>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 });
 FormMessage.displayName = "FormMessage";
