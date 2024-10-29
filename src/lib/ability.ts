@@ -15,7 +15,7 @@ export async function defineAbilityFor(userId: string): Promise<AppAbility> {
   const user = await prisma.user.findUnique({
     where: { id: userId },
     include: {
-      roles: {
+      role: {
         include: {
           permissions: {
             include: {
@@ -28,10 +28,8 @@ export async function defineAbilityFor(userId: string): Promise<AppAbility> {
   });
 
   if (user) {
-    user.roles.forEach((role) => {
-      role.permissions.forEach((permission) => {
-        can(permission.action as Actions, permission.subject.name);
-      });
+    user.role.permissions.forEach((permission) => {
+      can(permission.action as Actions, permission.subject.name);
     });
   }
 
