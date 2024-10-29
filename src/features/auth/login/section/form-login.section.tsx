@@ -2,7 +2,10 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { signIn } from "next-auth/react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,6 +23,11 @@ import { InputPassword } from "@/components/ui/input-password";
 import { LoginRequest, loginSchema } from "../types/login-request.type";
 
 export default function FormLoginSection() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const callback = searchParams.get("callbackUrl");
+
   const form = useForm<LoginRequest>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -29,11 +37,27 @@ export default function FormLoginSection() {
   });
 
   async function onSubmit(values: LoginRequest) {
-    try {
-      console.log(values);
-    } catch (error) {
-      console.error("Form submission error", error);
+    const res = await signIn("credentials", {
+      email: values.email,
+      password: values.password,
+      redirect: false,
+    });
+
+    if (res?.ok === false) {
+      form.setError("password", {
+        type: "manual",
+        message: "Invalid email or password",
+      });
+
+      toast.error("Invalid email or password");
+
+      return false;
     }
+
+    toast.success("Login successful");
+    router.replace(callback ?? "/dashboard");
+
+    return true;
   }
 
   return (
@@ -90,8 +114,8 @@ export default function FormLoginSection() {
                     </FormItem>
                   )}
                 />
-                <Button type="submit" className="w-full">
-                  Login
+                <Button type="submit" disabled={form.formState.isSubmitting} className="w-full">
+                  {form.formState.isSubmitting ? "Loading..." : "Login"}
                 </Button>
               </div>
             </form>

@@ -22,7 +22,8 @@ model User {
   emailVerificationToken String?               @unique
   createdAt              DateTime              @default(now())
   updatedAt              DateTime              @updatedAt
-  roles                  Role[]                @relation("UserRoles")
+  role                   Role                  @relation(fields: [roleId], references: [id])
+  roleId                 String                
 
   @@map("users")
 }
@@ -32,7 +33,7 @@ model Role {
   name        String        @unique
   description String?
   permissions Permission[]  @relation("RolePermissions")
-  users       User[]        @relation("UserRoles")
+  users       User[]        
 
   @@map("roles")
 }

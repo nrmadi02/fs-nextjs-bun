@@ -37,7 +37,7 @@ export async function seedUsers() {
         password: hashedPassword,
         name: user.name,
         verifiedAt: new Date(),
-        roles: {
+        role: {
           connect: { name: user.roleName },
         },
       },
@@ -46,7 +46,7 @@ export async function seedUsers() {
         password: hashedPassword,
         name: user.name,
         verifiedAt: new Date(),
-        roles: {
+        role: {
           connect: { name: user.roleName },
         },
       },

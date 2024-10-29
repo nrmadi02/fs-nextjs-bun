@@ -4,6 +4,7 @@ import "./globals.css";
 import { ReactNode } from "react";
 
 import { ThemeProvider } from "@/components/providers/theme.provider";
+import { Toaster } from "@/components/ui/sonner";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -30,6 +31,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <Toaster />
           {children}
         </ThemeProvider>
       </body>

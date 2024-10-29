@@ -1,8 +1,11 @@
+import { Role } from "@prisma/client";
+import { compare } from "bcrypt";
 import { DefaultSession, getServerSession, NextAuthOptions } from "next-auth";
 import { JWT } from "next-auth/jwt";
 import CredentialsProvider from "next-auth/providers/credentials";
 
 import { env } from "@/env";
+import prisma from "@/lib/db";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -15,7 +18,8 @@ declare module "next-auth" {
     user: {
       id: string;
       name: string;
-      role: string;
+      email: string;
+      role: Role;
     } & DefaultSession["user"];
   }
 }
@@ -48,8 +52,35 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "text" },
       },
       async authorize(credentials) {
-        console.log({ credentials });
-        return null;
+        if (!credentials?.email || !credentials?.password) {
+          throw new Error("Invalid credentials");
+        }
+
+        const user = await prisma.user.findUnique({
+          where: { email: credentials?.email },
+          include: { role: true },
+        });
+
+        if (!user) {
+          throw new Error("Invalid email or password");
+        }
+
+        if (!user.verifiedAt) {
+          throw new Error("Please verify your email");
+        }
+
+        const passwordMatch = await compare(credentials.password, user.password);
+
+        if (!passwordMatch) {
+          throw new Error("Incorrect password");
+        }
+
+        return {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+        };
       },
     }),
   ],
