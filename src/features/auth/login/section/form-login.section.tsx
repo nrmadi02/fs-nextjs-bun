@@ -37,7 +37,7 @@ export default function FormLoginSection() {
   }
 
   return (
-    <div className="flex size-full min-h-[50vh] flex-col items-center justify-center px-4">
+    <section className="flex size-full min-h-[50vh] flex-col items-center justify-center px-4">
       <Card className="mx-auto max-w-sm">
         <CardHeader>
           <CardTitle className="text-2xl">Login</CardTitle>
@@ -104,6 +104,6 @@ export default function FormLoginSection() {
           </div>
         </CardContent>
       </Card>
-    </div>
+    </section>
   );
 }
