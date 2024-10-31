@@ -6,6 +6,7 @@ export const env = createEnv({
     DATABASE_URL: z.string().url().min(1, "DATABASE_URL is required"),
     NEXTAUTH_SECRET: z.string().min(1, "NEXTAUTH_SECRET is required"),
     NEXTAUTH_URL: z.string().min(1, "NEXTAUTH_URL is required"),
+    REDIS_URL: z.string().min(1, "REDIS_URL is required"),
   },
   client: {
     // NEXT_PUBLIC_PUBLISHABLE_KEY: z.string().min(1, 'NEXT_PUBLIC_PUBLISHABLE_KEY is required'),
@@ -17,6 +18,7 @@ export const env = createEnv({
     NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
     NEXTAUTH_URL: process.env.NEXTAUTH_URL,
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
+    REDIS_URL: process.env.REDIS_URL,
   },
   // For Next.js >= 13.4.4, you only need to destructure client variables:
   // experimental__runtimeEnv: {
