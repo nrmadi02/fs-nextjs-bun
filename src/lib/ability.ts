@@ -7,8 +7,8 @@ type Subjects = string | "all";
 
 export type AppAbility = PureAbility<[Actions, Subjects]>;
 
-export async function defineAbilityFor(
-  user:
+export function defineAbilityFor(
+  user?:
     | (User & {
         role: Role & {
           permissions: Array<
@@ -19,7 +19,7 @@ export async function defineAbilityFor(
         };
       })
     | null
-): Promise<AppAbility> {
+): AppAbility {
   const { can, rules } = new AbilityBuilder<PureAbility<[Actions, Subjects]>>(PureAbility);
 
   if (user) {
