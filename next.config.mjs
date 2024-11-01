@@ -7,6 +7,7 @@ await jiti.import("./src/env.ts");
  */
 const nextConfig = {
   /* config options here */
+  serverExternalPackages: ["pino", "pino-pretty"],
 };
 
 export default nextConfig;

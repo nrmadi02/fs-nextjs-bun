@@ -9,18 +9,18 @@ import { userById } from "@/features/_shared/action/ability.action";
 import { getServerAuthSession } from "@/features/auth/lib/next-auth.option";
 
 import redisClient from "./redis";
+import { logger } from "./utils";
 
 const logMiddleware = createMiddleware().define(async ({ next, clientInput, metadata }) => {
-  console.log("LOGGING MIDDLEWARE");
-
   const startTime = performance.now();
   const result = await next();
 
   const endTime = performance.now();
 
-  if (clientInput) console.log("Client input ->", clientInput);
-  console.log("Metadata ->", metadata);
-  console.log("Action execution took", endTime - startTime, "ms");
+  if (clientInput) logger.info(clientInput, "Client input: ");
+  logger.info(metadata, "Metadata: ");
+  logger.info(`Request took ${endTime - startTime}ms to complete`);
+
   return result;
 });
 
@@ -53,7 +53,7 @@ const abilityMiddleware = createMiddleware<{
 
     return result(user);
   } catch (err) {
-    console.error("Error fetching data from Redis cache:", err);
+    logger.error(err, "Error fetching data from Redis cache");
     const user = await userById(ctx.userId);
     return result(user);
   }
@@ -61,6 +61,7 @@ const abilityMiddleware = createMiddleware<{
 
 export const actionClient = createSafeActionClient({
   handleServerError: async (error) => {
+    logger.error(error, "Server error");
     throw new Error(error.message ?? DEFAULT_SERVER_ERROR_MESSAGE);
   },
   defineMetadataSchema() {

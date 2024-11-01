@@ -70,6 +70,8 @@
     "next-auth": "^4.24.10",
     "next-safe-action": "^7.9.9",
     "next-themes": "^0.3.0",
+    "pino": "^9.5.0",
+    "pino-pretty": "^11.3.0",
     "prettier": "^3.3.3",
     "react": "^19.0.0-rc-0bc30748-20241028",
     "react-day-picker": "8.10.1",
