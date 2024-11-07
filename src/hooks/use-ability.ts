@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 
-import { getAbility } from "@/features/_shared/action/ability.action";
+import { getAbility } from "@/features/_shared/actions/get-ability.action";
 import { defineAbilityFor } from "@/lib/ability";
 
 export function useAbility() {

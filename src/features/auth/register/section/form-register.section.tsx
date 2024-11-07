@@ -2,8 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -20,63 +19,57 @@ import {
 import { Input } from "@/components/ui/input";
 import { InputPassword } from "@/components/ui/input-password";
 
-import { LoginRequest, loginSchema } from "../types/login-request.type";
+import { registerUser } from "../actions/register-mutation.action";
+import { RegisterRequest, registerSchema } from "../types/register-request.type";
 
-export default function FormLoginSection() {
+export default function FormRegisterSection() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-
-  const callback = searchParams.get("callbackUrl");
-
-  const form = useForm<LoginRequest>({
-    resolver: zodResolver(loginSchema),
+  const form = useForm<RegisterRequest>({
+    resolver: zodResolver(registerSchema),
     defaultValues: {
+      name: "",
       email: "",
       password: "",
+      confirmPassword: "",
     },
   });
 
-  async function onSubmit(values: LoginRequest) {
-    const res = await signIn("credentials", {
-      email: values.email,
-      password: values.password,
-      redirect: false,
-    });
-
-    if (res?.ok === false) {
-      if (res.error?.includes("password")) {
-        form.setError("password", {
-          type: "manual",
-          message: "Invalid email or password",
-        });
-
-        toast.error("Invalid email or password");
-      }
-
-      if (res.error?.includes("verify")) {
-        router.push("/auth/verification?email=" + values.email);
-      }
-
-      return false;
+  async function onSubmit(values: RegisterRequest) {
+    try {
+      await registerUser(values);
+      toast.success("Account created successfully");
+      form.reset();
+      router.push("/auth/verification?email=" + values.email);
+    } catch (error) {
+      const err = error as Error;
+      toast.error(err.message);
     }
-
-    toast.success("Login successful");
-    router.replace(callback ?? "/dashboard");
-
-    return true;
   }
 
   return (
-    <section className="flex size-full min-h-[50vh] flex-col items-center justify-center px-4">
+    <div className="flex size-full min-h-[60vh] items-center justify-center px-4">
       <Card className="mx-auto max-w-sm">
         <CardHeader>
-          <CardTitle className="text-2xl">Login</CardTitle>
-          <CardDescription>Enter your email and password to login to your account.</CardDescription>
+          <CardTitle className="text-2xl">Register</CardTitle>
+          <CardDescription>Create a new account by filling out the form below.</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               <div className="grid gap-4">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem className="space-y-1">
+                      <FormLabel htmlFor="name">Full Name</FormLabel>
+                      <FormControl>
+                        <Input id="name" placeholder="John Doe" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <FormField
                   control={form.control}
                   name="email"
@@ -88,7 +81,6 @@ export default function FormLoginSection() {
                           id="email"
                           placeholder="johndoe@mail.com"
                           type="email"
-                          autoFocus
                           autoComplete="email"
                           {...field}
                         />
@@ -102,20 +94,12 @@ export default function FormLoginSection() {
                   name="password"
                   render={({ field }) => (
                     <FormItem className="space-y-1">
-                      <div className="flex items-center justify-between">
-                        <FormLabel htmlFor="password">Password</FormLabel>
-                        <Link
-                          href="#"
-                          className="ml-auto inline-block text-sm font-semibold underline"
-                        >
-                          Forgot your password?
-                        </Link>
-                      </div>
+                      <FormLabel htmlFor="password">Password</FormLabel>
                       <FormControl>
                         <InputPassword
                           id="password"
                           placeholder="••••••••"
-                          autoComplete="current-password"
+                          autoComplete="new-password"
                           {...field}
                         />
                       </FormControl>
@@ -123,20 +107,39 @@ export default function FormLoginSection() {
                     </FormItem>
                   )}
                 />
+                <FormField
+                  control={form.control}
+                  name="confirmPassword"
+                  render={({ field }) => (
+                    <FormItem className="grid gap-2">
+                      <FormLabel htmlFor="confirmPassword">Confirm Password</FormLabel>
+                      <FormControl>
+                        <InputPassword
+                          id="confirmPassword"
+                          placeholder="••••••••"
+                          autoComplete="new-password"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
                 <Button type="submit" disabled={form.formState.isSubmitting} className="w-full">
-                  {form.formState.isSubmitting ? "Loading..." : "Login"}
+                  {form.formState.isSubmitting ? "Loading..." : "Register"}
                 </Button>
               </div>
             </form>
           </Form>
           <div className="mt-4 text-center text-sm">
-            Don&apos;t have an account?{" "}
-            <Link href="/auth/register" className="font-bold underline">
-              Sign up
+            Already have an account?{" "}
+            <Link href="/auth/login" className="font-bold underline">
+              Login
             </Link>
           </div>
         </CardContent>
       </Card>
-    </section>
+    </div>
   );
 }
